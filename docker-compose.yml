@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/workout_db
+    depends_on:
+      - db
+    command: sh -c "sleep 10 && alembic upgrade head && python init-db.py && uvicorn app.main:app --host 0.0.0.0 --reload"
+
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=workout_db
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data: 
